@@ -1,10 +1,8 @@
 import { Response, Request } from "express";
 import Router from "express-promise-router";
 import status from "http-status";
-import { v4 as uuidv4 } from "uuid";
-import { getDB } from "../models/db";
 import { Config } from "../shared/config";
-import { User } from "../models/user";
+import { metriportClient } from "../shared/metriport-api";
 
 const router = Router();
 
@@ -19,42 +17,70 @@ const router = Router();
  * @return  {status}
  */
 router.post("/", async (req: Request, res: Response) => {
-  const token = req.header("x-webhook-key");
-  if (!token) res.sendStatus(status.UNAUTHORIZED);
-
-  if (token !== Config.getMetriportWebhookKey()) {
+  if (
+    !metriportClient.verifyWebhookSignature(
+      Config.getMetriportWebhookKey(),
+      req.body,
+      String(req.headers["x-metriport-signature"])
+    )
+  ) {
     return res.sendStatus(status.UNAUTHORIZED);
   }
-  let value = req.body;
 
-  console.log(value)
+  if (req.body.ping) {
+    console.log(`Sending 200 | OK + 'pong' body param`);
+    return res.status(status.OK).json({ pong: req.body.ping });
+  }
 
-  try {
-    if (value.ping) {
-      return res.status(status.OK).json({ pong: value.ping });
+  if (req.body.meta.type === "medical.document-download") {
+    console.log(`Received document download webhook`);
+    const patient = req.body.patients[0];
+
+    if (patient.status === "completed") {
+      const documents = req.body.patients[0].documents;
+
+      if (documents.length > 0) {
+        const firstDoc = documents[0];
+
+        // DOWNLOAD THE DOCUMENT
+        // Expected response https://docs.metriport.com/medical-api/api-reference/document/get-document#response
+        const resp = await metriportClient.getDocumentUrl(
+          firstDoc.fileName,
+          "pdf"
+        );
+
+        console.log(`got download URL ${resp.url}`);
+        // await downloadFile(resp.url, firstDoc.fileName, "pdf");
+      }
+    } else {
+      console.log("Error querying documents");
     }
+  }
 
-    if (value.users && value.users.length > 0) {
-      value.users.forEach(async (user: any) => {
-        let localUser: User | null = await getDB().user.findOne({
-          where: { metriportUserId: user.userId },
-        });
+  if (req.body.meta.type === "medical.document-conversion") {
+    console.log(`Received document conversion webhook`);
+    const patient = req.body.patients[0];
 
-        if (localUser) {
-          // Insert for sleep the same could be done for other data sets
-          if (user.sleep) {
-            getDB().sleep.create({
-              id: uuidv4(),
-              userId: localUser.id,
-              value: JSON.stringify(user.sleep),
-            });
-          }
-        }
-      });
+    if (patient.status === "completed") {
+      const patientId = patient.patientId;
+
+      // START A CONSOLIDATED QUERY
+      // Expected response https://docs.metriport.com/medical-api/api-reference/fhir/consolidated-data-query-post#response
+      await metriportClient.startConsolidatedQuery(patientId);
+    } else {
+      console.log("Error converting documents");
     }
-  } catch (error) {
-    console.log(error);
-    return res.sendStatus(status.INTERNAL_SERVER_ERROR);
+  }
+
+  if (req.body.meta.type === "medical.consolidated-data") {
+    console.log(`Received consolidated data webhook`);
+    const patient = req.body.patients[0];
+
+    if (patient.status === "completed") {
+      console.log(JSON.stringify(req.body, undefined, 2));
+    } else {
+      console.log("Error consolidating data");
+    }
   }
 
   return res.sendStatus(status.OK);

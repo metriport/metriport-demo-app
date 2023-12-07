@@ -1,6 +1,8 @@
-import { Metriport } from "@metriport/api";
+import { MetriportMedicalApi } from "@metriport/api-sdk";
 
 import { Config } from "../shared/config";
 
-export const metriportClient = new Metriport(Config.getMetriportApiKey(), Config.getMetriportApiUrl());
-
+export const metriportClient = new MetriportMedicalApi(
+  Config.getMetriportApiKey(),
+  { sandbox: !Config.isProdEnv() }
+);
