@@ -28,7 +28,6 @@ import {
   FiMenu,
   FiBell,
   FiChevronDown,
-  FiWatch,
   FiDisc,
 } from "react-icons/fi";
 import { IconType } from "react-icons";
@@ -44,13 +43,7 @@ interface LinkItemProps {
 }
 const LinkItems: Array<LinkItemProps> = [
   { name: "Home", icon: FiHome, path: "/" },
-  { name: "Activity", icon: FiDisc, path: "/activity" },
-  { name: "Body", icon: FiDisc, path: "/body" },
-  { name: "Biometrics", icon: FiDisc, path: "/biometrics" },
-  { name: "Nutrition", icon: FiDisc, path: "/nutrition" },
-  { name: "Sleep", icon: FiDisc, path: "/sleep" },
-  { name: "User", icon: FiDisc, path: "/user" },
-  // { name: "Device", icon: FiWatch, path: "/device" },
+  { name: "Example", icon: FiDisc, path: "/example" },
   { name: "Settings", icon: FiSettings, path: "/settings" },
 ];
 
@@ -254,9 +247,6 @@ const MobileNav = ({ onOpen, signOut, user, ...rest }: MobileProps) => {
                   <Text fontSize="sm">
                     {user != undefined ? user?.attributes?.email : ""}
                   </Text>
-                  {/* <Text fontSize="xs" color="gray.600">
-                    Pro
-                  </Text> */}
                 </VStack>
                 <Box display={{ base: "none", md: "flex" }}>
                   <FiChevronDown />
@@ -270,9 +260,9 @@ const MobileNav = ({ onOpen, signOut, user, ...rest }: MobileProps) => {
               <NavLink to="/">
                 <MenuItem>Home</MenuItem>
               </NavLink>
-              {/* <NavLink to="/device">
-                <MenuItem>Device</MenuItem>
-              </NavLink> */}
+              <NavLink to="/example">
+                <MenuItem>Example</MenuItem>
+              </NavLink>
               <NavLink to="/settings">
                 <MenuItem>Settings</MenuItem>
               </NavLink>

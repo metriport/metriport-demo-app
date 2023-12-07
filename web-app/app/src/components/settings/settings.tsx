@@ -13,20 +13,7 @@ import { fetchUserToken } from "../shared/util";
 
 export default function Settings({}: {}) {
   const [isLoadingToken, setIsLoadingToken] = useState(true);
-  const [isCreatingSession, setIsCreatingSession] = useState(false);
   const color = useColorModeValue("white", "gray.700");
-
-  // submits the value to the backend
-  async function startConnectSession() {
-    // create a connect session token
-    setIsCreatingSession(true);
-    const resp = await api.get("/user/connect/token");
-    const token = resp.data;
-    window.open(
-      `${process.env.REACT_APP_METRIPORT_CONNECT_WIDGET_URL!}?token=${token}`
-    );
-    setIsCreatingSession(false);
-  }
 
   // ensure user token is loaded into the api
   useEffect(() => {
@@ -61,10 +48,8 @@ export default function Settings({}: {}) {
               _hover={{
                 bg: "#879ced",
               }}
-              isLoading={isCreatingSession}
-              onClick={startConnectSession}
             >
-              Manage Connected Devices
+              Do Something
             </Button>
           </Stack>
         </VStack>
