@@ -19,7 +19,7 @@ services:
       - NODE_ENV=development
       - PORT=8081
     ports:
-      - "8081:8081"
+      - "8087:8081"
       - "9249:9229"
     volumes:
       - ./src:/usr/src/app/src

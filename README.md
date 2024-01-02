@@ -114,9 +114,9 @@ First, create a local environment file, to define your Metriport developer API k
 
 ```shell
 $ touch server/app/.env
-$ echo "METRIPORT_API_KEY=<YOUR-API-KEY>" > server/app/.env
-$ echo "METRIPORT_WEBHOOK_KEY=<YOUR-WEBHOOK-KEY>" > server/app/.env
-$ echo "METRIPORT_API_URL=https://api.metriport.com" > server/app/.env
+$ echo "METRIPORT_API_KEY=<YOUR-API-KEY>" >> server/app/.env
+$ echo "METRIPORT_WEBHOOK_KEY=<YOUR-WEBHOOK-KEY>" >> server/app/.env
+$ echo "METRIPORT_API_URL=https://api.metriport.com" >> server/app/.env
 ```
 
 Then to run the full back-end, use docker-compose to lauch a Postgres container, as well as the Node server:
@@ -124,7 +124,7 @@ Then to run the full back-end, use docker-compose to lauch a Postgres container,
 ```shell
 $ cd server/app
 $ npm install # only needs to be run once
-$ docker-compose -f docker-compose.dev.yml up --build # db is on port 5434 and server is on port 8081
+$ docker-compose -f docker-compose.dev.yml up --build # db is on port 5434 and server is on port 8087
 ```
 
 To kill and clean-up the back-end, you can run the following from the `server/app` directory:
